@@ -1,103 +1,92 @@
-import Image from "next/image";
+"use client";
+
+import { useState, useEffect } from "react";
+
+// Definir la interfaz para los invitados
+interface Invitado {
+  id: number;
+  nombre: string;
+}
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [nombre, setNombre] = useState("");
+  const [invitados, setInvitados] = useState<Invitado[]>([]);
+  const [timeLeft, setTimeLeft] = useState({ días: 0, horas: 0, minutos: 0, segundos: 0 });
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+  // Fecha y hora del cumpleaños (AJUSTA ESTO)
+  const cumpleFecha = new Date("2025-03-24T17:30:00"); // 20 de abril de 2025, 7:00 PM
+
+  function calculateTimeLeft() {
+    const difference = cumpleFecha.getTime() - new Date().getTime();
+    if (difference <= 0) return { días: 0, horas: 0, minutos: 0, segundos: 0 };
+
+    return {
+      días: Math.floor(difference / (1000 * 60 * 60 * 24)),
+      horas: Math.floor((difference / (1000 * 60 * 60)) % 24),
+      minutos: Math.floor((difference / (1000 * 60)) % 60),
+      segundos: Math.floor((difference / 1000) % 60),
+    };
+  }
+
+  useEffect(() => {
+    fetch("api/invitados")
+      .then((res) => res.json())
+      .then((data) => setInvitados(data.data));
+
+    const timer = setInterval(() => setTimeLeft(calculateTimeLeft()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!nombre.trim()) return;
+
+    const res = await fetch("api/invitados", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nombre }),
+    });
+
+    if (res.ok) {
+      const newInvitado = await res.json();
+      setInvitados([newInvitado.data, ...invitados]); // Aquí ya no debería haber error
+      setNombre("");
+    }
+  };
+
+  return (
+    <main className="flex flex-col items-center p-6 bg-gradient-to-br from-pink-500 to-yellow-400 min-h-screen text-white">
+      <h1 className="text-4xl font-bold mb-2">🎉 ¡Estás Invitado a Mi Cumpleaños! 🎂</h1>
+      <p className="text-lg mb-6">Únete a la fiesta el <strong>20 de abril de 2025</strong> a las 7:00 PM</p>
+
+      {/* Cuenta Regresiva */}
+      <div className="flex gap-4 text-2xl font-bold bg-white text-pink-600 p-4 rounded-xl shadow-md">
+        <span>{timeLeft.días}d</span> <span>{timeLeft.horas}h</span> <span>{timeLeft.minutos}m</span> <span>{timeLeft.segundos}s</span>
+      </div>
+
+      {/* Formulario de Registro */}
+      <form onSubmit={handleSubmit} className="flex flex-col items-center mt-6 gap-3">
+        <input
+          type="text"
+          value={nombre}
+          onChange={(e) => setNombre(e.target.value)}
+          placeholder="Escribe tu nombre"
+          className="border p-2 rounded text-black w-64 text-center"
+        />
+        <button type="submit" className="bg-blue-600 hover:bg-blue-800 px-6 py-2 rounded-xl text-lg font-semibold">
+          Confirmar Asistencia
+        </button>
+      </form>
+
+      {/* Lista de Invitados */}
+      <h2 className="text-2xl font-semibold mt-8">🎈 Invitados Confirmados:</h2>
+      <ul className="bg-white text-black p-4 rounded-lg w-64 text-center mt-2">
+        {invitados.length > 0 ? (
+          invitados.map((invitado: Invitado) => <li key={invitado.id}>{invitado.nombre}</li>)
+        ) : (
+          <p>Nadie se ha registrado aún 😢</p>
+        )}
+      </ul>
+    </main>
   );
 }
