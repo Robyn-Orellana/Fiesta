@@ -1,20 +1,21 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
 
 :root {
-  --background: #ffffff;
+  --background: linear-gradient(to right, #4e73df, #6a0dad); /* Degradado de azul a morado */
   --foreground: #171717;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: 'Poppins', sans-serif; /* Fuente viva */
   --font-mono: var(--font-geist-mono);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --background: linear-gradient(to right, #1f3c5b, #3c0a6d); /* Degradado oscuro para modo oscuro */
     --foreground: #ededed;
   }
 }
@@ -22,5 +23,11 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Poppins', sans-serif; /* Aplica la fuente Poppins */
+  transition: all 0.3s ease; /* Para una transición suave entre modos */
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Poppins', sans-serif; /* Aplica la fuente a los encabezados */
+  font-weight: 600; /* Negrita para los encabezados */
 }
