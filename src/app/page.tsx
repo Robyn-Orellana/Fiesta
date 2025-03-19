@@ -57,7 +57,7 @@ export default function Home() {
 
   return (
     <main className="flex flex-col items-center p-6 bg-gradient-to-br from-pink-500 to-yellow-400 min-h-screen text-white">
-      <h1 className="text-4xl font-bold mb-2">🎉 ¡Estás Invitado a Mi Cumpleaños! 🎂</h1>
+      <h1 className="text-4xl font-bold mb-2">🎉 ¡Estás Invitado a Mi Cumpleaños 22! 🎂</h1>
       <p className="text-lg mb-6">Únete a la fiesta el <strong>24 de Marzo de 2025</strong> a las 5:30 PM</p>
 
       {/* Cuenta Regresiva */}
